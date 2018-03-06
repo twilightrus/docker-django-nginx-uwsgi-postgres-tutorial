@@ -1,13 +1,15 @@
-version: '3'
+version: '2'
 services:
 
     db:
       container_name: postgres
       image: postgres
       environment:
+        POSTGRES_DB: blog
+        POSTGRES_USER: postgres
         POSTGRES_PASSWORD: password123
       ports:
-        - "5432:5432"
+        - "6479:6479"
         # (HOST:CONTAINER)
       volumes:
         - pgdata:/var/lib/postgresql/data/
@@ -17,27 +19,27 @@ services:
         build: ./nginx
         restart: always
         ports:
-        - "8080:80" 
+        - "80:80"
         volumes:        
-        - api_data:/docker_api        
+        - app_data:/docker_app
         - ./log:/var/log/nginx              
         depends_on:
-        - api
+        - app
         
-    api:
-        container_name: api-container
-        build: ./api        
+    app:
+        container_name: app-container
+        build: ./app
         restart: always
         # command: uwsgi  --emperor uwsgi.ini         
         command: uwsgi --ini uwsgi.ini         
         ports:
         - "8002:8000"
         volumes:
-        - api_data:/docker_api        
+        - app_data:/docker_app
         depends_on:
         - db
 
 volumes:
-    api_data:
+    app_data:
     pgdata:
 

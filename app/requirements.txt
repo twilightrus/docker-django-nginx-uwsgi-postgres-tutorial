@@ -1,0 +1,4 @@
+django==2.0.2
+psycopg2-binary
+psycopg2
+uwsgi

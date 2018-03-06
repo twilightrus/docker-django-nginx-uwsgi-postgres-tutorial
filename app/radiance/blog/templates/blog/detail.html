@@ -1,0 +1,69 @@
+{% extends 'user.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div style="text-align: center;">
+        <h3>{{ article.title }}</h3>
+
+        <h4>Pubslished at: {{ article.pub_date }}</h4>
+
+        <img src="{{ article.image }}"><br><br><br>
+
+        {{ article.description }}<br><br><br><br>
+        <b><span id="count_likes"></span> likes.</b><br><br>
+        <b><span id="is_liked"></span></b>
+        <a id='my_link' href=''><img height="50px;" src="{% static 'images/like.jpg' %}"></a><br><br>
+        <span id="likes_loader"><img height="40px;" src="{% static 'images/load.gif' %}"></span><br><br>
+        <a href="{% url "blog:index" %}">Index page.</a><br><br>
+
+        {% if article.get_previous_id %}<a href="{% url "blog:detail" article.get_previous_id %}"><<</a>{% endif %}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+        {% if article.get_next_id %}<a href="{% url "blog:detail" article.get_next_id %}">>></a>{% endif %}
+    </div><br><br>
+    <h2 id="count_comments"></h2>
+    <form id="add_comment_form" onsubmit="main.add_comment(); return false;">
+        <textarea id='content' name="content" placeholder="Content" required></textarea><br><br>
+        {% csrf_token %}
+        <input type="hidden" name="article" value="{{ article.id }}">
+        <input type="submit" value="Comment"><br><br>
+        <span id="comments_loader"><img height="40px;" src="{% static 'images/load.gif' %}"></span>
+    </form>
+    <br><br>
+    <div id="comments">
+    </div>
+    <script>
+
+        var data = {
+            "article_id": "{{ article.id }}",
+            "user_id": "{{ user.id }}",
+            "csrf_token": Util.getCookie('csrftoken'),
+            "routes": {
+                "article_like": "{% url 'blog:like_article_add' %}",
+                "comment_like": "{% url 'blog:like_comment_add' %}",
+                "comment_add": "{% url 'blog:comment_add' %}",
+                "comment_delete": "{% url 'blog:comment_delete' %}",
+                "comments_get": "{% url 'blog:comments_get' article.id %}",
+                "likes_get": "{% url 'blog:likes_get' article.id %}",
+
+                "static_urls": {
+                    "like": "{% static 'images/like.jpg' %}"
+                }
+            }
+        };
+
+        var main = new Main(data);
+        main.get_comments();
+        main.get_likes();
+
+
+        let $link = document.querySelector('#my_link');
+
+        $link.addEventListener('click', (e) => {
+            e.preventDefault();
+        main.add_like_article();
+        });
+
+    </script>
+{% endblock %}
